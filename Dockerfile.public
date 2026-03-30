@@ -7,10 +7,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip && \
-    pip install httpx python-dotenv && \
+    pip install httpx python-dotenv uvicorn && \
     pip install git+https://github.com/modelcontextprotocol/python-sdk.git
 
 COPY .env .env
-COPY gotas_mcp_public.py gotas_mcp.py
+COPY gotas_mcp_http.py gotas_mcp.py
 
-CMD ["python", "gotas_mcp.py"]
+# Стартувај како HTTP сервер на порта 3000
+CMD ["python", "-m", "uvicorn", "gotas_mcp:app", "--host", "0.0.0.0", "--port", "3000"]
