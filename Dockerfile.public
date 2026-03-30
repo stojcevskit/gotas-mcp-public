@@ -1,0 +1,16 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN pip install --upgrade pip && \
+    pip install httpx python-dotenv && \
+    pip install git+https://github.com/modelcontextprotocol/python-sdk.git
+
+COPY .env .env
+COPY gotas_mcp_public.py gotas_mcp.py
+
+CMD ["python", "gotas_mcp.py"]
