@@ -1,52 +1,50 @@
-# 💧 Gotas Commerce MCP Server
+💧 Gotas Commerce MCP Server
+This Model Context Protocol (MCP) server allows AI assistants (like Claude or Cursor) to directly manage USDT (BEP20) payments via Gotas Commerce.
 
-[![MCP](https://img.shields.io/badge/MCP-Protocol-blue)](https://modelcontextprotocol.io)
-[![Python](https://img.shields.io/badge/Python-3.11-yellow)](https://www.python.org/)
+✨ Features
+🔗 Create Payment Links: Generate unique USDT (BEP20) links.
 
-This **Model Context Protocol (MCP)** server allows AI assistants (like Claude or Cursor) to directly create and manage **USDT (BEP20)** payments via [Gotas Commerce](https://commerce.gotas.com.br/).
+⏳ Wait for Payment: (New) Async polling to track payment status without blocking.
 
-## ✨ Features
-- 🔗 **Create Payment Links**: Generate unique USDT (BEP20) links.
-- 💰 **Check Balance**: Summary of all successfully completed payments.
-- 📑 **Transaction History**: List recent payments with status and descriptions.
-- ✅ **Payment Status**: Verify individual payments via Payment ID.
+💰 Check Balance: Summary of all successfully completed payments.
 
-## 🚀 Installation & Setup
+📑 Transaction History: List recent payments with status and descriptions.
 
-1. **Clone and Install:**
-```bash
-git clone [https://github.com/stojcevskit/gotas-mcp-public.git](https://github.com/stojcevskit/gotas-mcp-public.git)
-cd gotas-mcp-public
-pip install -r requirements.txt
-Configuration (.env):
-Create a file named .env in the root directory and add:
+✅ Payment Status: Verify individual payments via Payment ID.
 
-Code snippet
-GOTAS_API_KEY=your_api_key_from_gotas
-USDT_ADDRESS=your_BEP20_wallet_address
-Claude Desktop Integration:
+🚀 Quick Start (Docker)
+The fastest way to run the server is using the official image from Docker Hub:
+
+Bash
+docker pull tiho64/gotas-mcp-public:latest
+docker run -i --rm -e GOTAS_API_KEY=your_key -e USDT_ADDRESS=your_wallet tiho64/gotas-mcp-public:latest
+🛠️ Claude Desktop Integration
 Add this to your claude_desktop_config.json:
 
 JSON
 {
   "mcpServers": {
-    "gotas-commerce": {
-      "command": "python",
-      "args": ["/absolute/path/to/gotas_mcp_public.py"],
-      "env": {
-        "GOTAS_API_KEY": "your_api_key",
-        "USDT_ADDRESS": "your_wallet_address"
-      }
+    "gotas-payment": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "GOTAS_API_KEY=your_key", "-e", "USDT_ADDRESS=your_wallet", "tiho64/gotas-mcp-public:latest"]
     }
   }
 }
-🐳 Docker Support
+🏗️ Local Installation
+Clone and Install:
+
 Bash
-docker build -f Dockerfile.public -t gotas-mcp .
-docker run --env-file .env gotas-mcp
+git clone https://github.com/stojcevskit/gotas-mcp.git
+cd gotas-mcp
+pip install -r requirements.txt
+Configuration (.env):
+Create a .env file in the root directory:
+
+Code snippet
+GOTAS_API_KEY=your_api_key_from_gotas
+USDT_ADDRESS=your_BEP20_wallet_address
 🌐 Live Deployment
 Verified and live on MCPize: https://mcpize.com/mcp/gotas-commerce
 
 📄 License
 MIT License
-
