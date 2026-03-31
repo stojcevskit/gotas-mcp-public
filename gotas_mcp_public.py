@@ -42,6 +42,17 @@ async def handle_list_tools() -> list[types.Tool]:
             }
         ),
         types.Tool(
+            name="wait_for_payment",
+            description="Wait and poll until a payment status becomes 'completed'. Maximum wait is 5 minutes.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "payment_id": {"type": "string", "description": "Payment ID to watch"}
+                },
+                "required": ["payment_id"]
+            }
+        ),
+        types.Tool(
             name="check_balance",
             description="Check USDT balance in your distribution wallet",
             inputSchema={
@@ -103,6 +114,30 @@ async def handle_call_tool(name: str, arguments: dict | None) -> list[types.Text
             )
             data = response.json()
             return [types.TextContent(type="text", text=f"Status: {data.get('status')}\nAmount: {data.get('amount')} USDT\nPayment URL: {data.get('payment_url')}")]
+
+    elif name == "wait_for_payment":
+        payment_id = arguments.get("payment_id")
+        max_attempts = 30  # 30 attempts * 10 seconds = 5 minutes total
+        
+        async with httpx.AsyncClient() as client:
+            for attempt in range(max_attempts):
+                response = await client.get(
+                    f"https://commerce.gotas.com/api/v1/payments/{payment_id}",
+                    headers={"X-API-Key": GOTAS_API_KEY},
+                )
+                data = response.json()
+                status = data.get("status")
+                
+                if status == "completed":
+                    return [types.TextContent(type="text", text=f"✅ Success! Payment {payment_id} is now COMPLETED on the blockchain.")]
+                
+                if status == "failed":
+                    return [types.TextContent(type="text", text=f"❌ Payment {payment_id} FAILED.")]
+
+                # Non-blocking wait for 10 seconds before the next check
+                await asyncio.sleep(10)
+            
+            return [types.TextContent(type="text", text="⏳ Timeout: Payment is still pending after 5 minutes. Use check_payment_status later.")]
 
     elif name == "check_balance":
         async with httpx.AsyncClient() as client:
@@ -188,7 +223,7 @@ async def main():
             write_stream,
             InitializationOptions(
                 server_name="gotas-commerce",
-                server_version="1.0.0",
+                server_version="1.1.0", # Bumped version to reflect changes
                 capabilities=server.get_capabilities(
                     notification_options=NotificationOptions(),
                     experimental_capabilities={},
