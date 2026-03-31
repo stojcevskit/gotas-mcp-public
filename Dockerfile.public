@@ -2,16 +2,18 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Потребни алатки за инсталација на SDK од GitHub
 RUN apt-get update && \
     apt-get install -y git && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip && \
-    pip install httpx python-dotenv uvicorn && \
+    pip install httpx python-dotenv && \
     pip install git+https://github.com/modelcontextprotocol/python-sdk.git
 
-COPY .env .env
-COPY gotas_mcp_http.py gotas_mcp.py
+# Копирај го главниот код (stdio верзијата)
+COPY gotas_mcp_public.py gotas_mcp.py
 
-# Стартувај како HTTP сервер на порта 3000
-CMD ["python", "-m", "uvicorn", "gotas_mcp:app", "--host", "0.0.0.0", "--port", "3000"]
+# Избриши ја линијата за uvicorn! 
+# Стартувај го директно како python скрипта (stdio модел)
+CMD ["python", "gotas_mcp.py"]
